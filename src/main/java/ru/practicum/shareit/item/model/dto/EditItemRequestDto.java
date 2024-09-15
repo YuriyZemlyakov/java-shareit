@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.model.dto;
 
 import lombok.Data;
 
@@ -6,5 +6,5 @@ import lombok.Data;
 public class EditItemRequestDto {
     private String name;
     private String description;
-    private boolean available;
+    private Boolean available;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.model.dto;
 
 import lombok.Data;
 
@@ -10,7 +10,7 @@ public class ItemDto {
     private long id;
     private String name;
     private String description;
-    private boolean available;
+    private Boolean available;
     private long owner;
     private long request = 0;
 }

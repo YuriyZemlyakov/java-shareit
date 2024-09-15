@@ -1,35 +1,61 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.EditItemRequestDto;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dao.ItemStorage;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.dto.EditItemRequestDto;
+import ru.practicum.shareit.item.model.dto.ItemDto;
+import ru.practicum.shareit.item.model.dtoMapper.ItemDtoMapper;
+import ru.practicum.shareit.user.dao.UserStorage;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
-public class ItemServiceImpl implements ItemService{
+@Service
+@AllArgsConstructor
+public class ItemServiceImpl implements ItemService {
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
+
     @Override
     public ItemDto getItem(long itemId) {
-        return null;
+        return ItemDtoMapper.itemToDto(itemStorage.getItem(itemId));
+    }
+
+
+    @Override
+    public Collection<ItemDto> getItemsByOwner(long ownerId) {
+        return itemStorage.getItemsByOwner(ownerId).stream()
+                .map(item -> ItemDtoMapper.itemToDto(item))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<ItemDto> getAllItems() {
-        return null;
+    public ItemDto addItem(long userId, ItemDto newItem) {
+        if (userStorage.getUser(userId) == null) {
+            throw new NotFoundException(String.format("Пользователь с id {} не найден", userId));
+        }
+        Item item = ItemDtoMapper.dtoToItem(newItem);
+        item.setOwner(userId);
+        return ItemDtoMapper.itemToDto(itemStorage.addItem(item));
     }
 
     @Override
-    public ItemDto addItem(ItemDto newItem) {
-        return null;
-    }
+    public ItemDto editItem(long itemId, long userId, EditItemRequestDto editedFields) {
+        if (userId != itemStorage.getItem(itemId).getOwner()) {
+            throw new NotFoundException(String.format("У пользовател {} нет вещи {}", userId, itemId));
+        }
 
-    @Override
-    public ItemDto editItem(long itemId, EditItemRequestDto editedFields) {
-
-        return null;
+        return ItemDtoMapper.itemToDto(itemStorage.updateItem(itemId, editedFields));
     }
 
     @Override
     public Collection<ItemDto> searchItem(String text) {
-        return null;
+        return itemStorage.searchItem(text).stream()
+                .map(item -> ItemDtoMapper.itemToDto(item))
+                .collect(Collectors.toList());
     }
 
     @Override
