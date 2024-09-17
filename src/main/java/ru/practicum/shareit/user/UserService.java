@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dao.UserStorage;
 import ru.practicum.shareit.user.model.dto.EditedUserFields;
 import ru.practicum.shareit.user.model.dto.UserDto;
@@ -26,15 +27,41 @@ public class UserService {
     }
 
     public UserDto addUser(UserDto user) {
+        validateUser(user);
         return UserDtoMapper.userToDto(userStorage.addUser(UserDtoMapper.dtoToUser(user)));
     }
 
-    public UserDto updateUser(long userId, EditedUserFields editedUserfields) {
-        return UserDtoMapper.userToDto(userStorage.updateUser(userId, editedUserfields));
+    public UserDto updateUser(long userId, EditedUserFields editedUserFields) {
+        validtateEditUserDto(editedUserFields);
+        return UserDtoMapper.userToDto(userStorage.updateUser(userId, editedUserFields));
     }
 
     public void deleteUser(long userId) {
         userStorage.deleteUser(userId);
+    }
+
+    private void validateUser(UserDto userDto) {
+        if (userDto.getName().isBlank()) {
+            throw new ValidationException("Имя пользователя должно быть заполнено");
+        }
+        if (userDto.getEmail().isBlank()) {
+            throw new ValidationException("email должен быть заполнен");
+        }
+        if (!userDto.getEmail().contains("@")) {
+            throw new ValidationException("Неправильный формат email");
+        }
+    }
+
+    private void validtateEditUserDto(EditedUserFields editedUserFields) {
+        if (editedUserFields.getName() != null && editedUserFields.getName().isBlank()) {
+            throw new ValidationException("Имя пользователя должно быть заполнено");
+        }
+        if (editedUserFields.getEmail() != null && editedUserFields.getEmail().isBlank()) {
+            throw new ValidationException("email должен быть заполнен");
+        }
+        if (editedUserFields.getEmail() != null && !editedUserFields.getEmail().contains("@")) {
+            throw new ValidationException("Неправильный формат email");
+        }
     }
 
 }

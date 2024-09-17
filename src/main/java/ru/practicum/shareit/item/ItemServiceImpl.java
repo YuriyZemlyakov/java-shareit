@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.dto.EditItemRequestDto;
@@ -34,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(long userId, ItemDto newItem) {
+        validateItemDto(newItem);
         if (userStorage.getUser(userId) == null) {
             throw new NotFoundException(String.format("Пользователь с id {} не найден", userId));
         }
@@ -44,6 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto editItem(long itemId, long userId, EditItemRequestDto editedFields) {
+        validateItemDto(editedFields);
         if (userId != itemStorage.getItem(itemId).getOwner()) {
             throw new NotFoundException(String.format("У пользовател {} нет вещи {}", userId, itemId));
         }
@@ -60,6 +63,28 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(long itemId) {
+    }
+    private void validateItemDto(ItemDto itemDto) {
+        if (itemDto.getName().isBlank()) {
+            throw new ValidationException("Поле name должно быть заполнено");
+        }
+        if (itemDto.getDescription().isBlank()) {
+            throw new ValidationException("Поле description должно быть заполнено");
+        }
+        if (itemDto.getAvailable() == null) {
+            throw new ValidationException("Поле available должно быть заполнено");
+        }
+    }
 
+    private void validateItemDto(EditItemRequestDto editItemRequestDto) {
+        if (editItemRequestDto.getName() != null && editItemRequestDto.getName().isBlank()) {
+            throw new ValidationException("Поле name должно быть заполнено");
+        }
+        if (editItemRequestDto.getDescription() != null && editItemRequestDto.getDescription().isBlank()) {
+            throw new ValidationException("Поле description должно быть заполнено");
+        }
+        if (editItemRequestDto.getAvailable() != null && editItemRequestDto.getAvailable() == null) {
+            throw new ValidationException("Поле available должно быть заполнено");
+        }
     }
 }

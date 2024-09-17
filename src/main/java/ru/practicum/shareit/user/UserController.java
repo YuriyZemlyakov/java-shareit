@@ -29,38 +29,12 @@ public class UserController {
 
     @PostMapping
     public UserDto addUser(@RequestBody UserDto user) {
-        validateUser(user);
         return userService.addUser(user);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable long userId, @RequestBody EditedUserFields editedUserFields) {
-        validtateEditUserDto(editedUserFields);
         return userService.updateUser(userId, editedUserFields);
-    }
-
-    private void validateUser(UserDto userDto) {
-        if (userDto.getName().isBlank()) {
-            throw new ValidationException("Имя пользователя должно быть заполнено");
-        }
-        if (userDto.getEmail().isBlank()) {
-            throw new ValidationException("email должен быть заполнен");
-        }
-        if (!userDto.getEmail().contains("@")) {
-            throw new ValidationException("Неправильный формат email");
-        }
-    }
-
-    private void validtateEditUserDto(EditedUserFields editedUserFields) {
-        if (editedUserFields.getName() != null && editedUserFields.getName().isBlank()) {
-            throw new ValidationException("Имя пользователя должно быть заполнено");
-        }
-        if (editedUserFields.getEmail() != null && editedUserFields.getEmail().isBlank()) {
-            throw new ValidationException("email должен быть заполнен");
-        }
-        if (editedUserFields.getEmail() != null && !editedUserFields.getEmail().contains("@")) {
-            throw new ValidationException("Неправильный формат email");
-        }
     }
 
     @DeleteMapping("/{userId}")
