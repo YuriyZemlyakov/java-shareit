@@ -35,7 +35,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(long userId, ItemDto newItem) {
-        validateItemDto(newItem);
         if (userStorage.getUser(userId) == null) {
             throw new NotFoundException(String.format("Пользователь с id {} не найден", userId));
         }
@@ -63,17 +62,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(long itemId) {
-    }
-    private void validateItemDto(ItemDto itemDto) {
-        if (itemDto.getName().isBlank()) {
-            throw new ValidationException("Поле name должно быть заполнено");
-        }
-        if (itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Поле description должно быть заполнено");
-        }
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Поле available должно быть заполнено");
-        }
     }
 
     private void validateItemDto(EditItemRequestDto editItemRequestDto) {
