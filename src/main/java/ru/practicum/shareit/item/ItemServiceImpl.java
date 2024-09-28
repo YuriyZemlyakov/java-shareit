@@ -22,46 +22,56 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItem(long itemId) {
-        return ItemDtoMapper.itemToDto(itemStorage.getItem(itemId));
+        return ItemDtoMapper.itemToDto(itemStorage.getReferenceById(itemId));
     }
 
 
     @Override
     public Collection<ItemDto> getItemsByOwner(long ownerId) {
-        return itemStorage.getItemsByOwner(ownerId).stream()
+        return itemStorage.findAll().stream()
                 .map(item -> ItemDtoMapper.itemToDto(item))
                 .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto addItem(long userId, ItemDto newItem) {
-        if (userStorage.getUser(userId) == null) {
+        if (userStorage.getReferenceById(userId) == null) {
             throw new NotFoundException(String.format("Пользователь с id {} не найден", userId));
         }
         Item item = ItemDtoMapper.dtoToItem(newItem);
         item.setOwner(userId);
-        return ItemDtoMapper.itemToDto(itemStorage.addItem(item));
+        return ItemDtoMapper.itemToDto(itemStorage.save(item));
     }
 
     @Override
     public ItemDto editItem(long itemId, long userId, EditItemRequestDto editedFields) {
         validateItemDto(editedFields);
-        if (userId != itemStorage.getItem(itemId).getOwner()) {
+        Item editedItem = itemStorage.getReferenceById(itemId);
+        if (userId != editedItem.getOwner()) {
             throw new NotFoundException(String.format("У пользовател {} нет вещи {}", userId, itemId));
         }
-
-        return ItemDtoMapper.itemToDto(itemStorage.updateItem(itemId, editedFields));
+        if (editedFields.getName() != null) {
+            editedItem.setName(editedFields.getName());
+        }
+        if (editedFields.getDescription() != null) {
+            editedItem.setDescription(editedFields.getDescription());
+        }
+        if (editedFields.getAvailable() != null) {
+            editedItem.setAvailable(editedFields.getAvailable());
+        }
+        return ItemDtoMapper.itemToDto(itemStorage.save(editedItem));
     }
 
     @Override
     public Collection<ItemDto> searchItem(String text) {
-        return itemStorage.searchItem(text).stream()
+        return itemStorage.searchItem(text.toLowerCase()).stream()
                 .map(item -> ItemDtoMapper.itemToDto(item))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void deleteItem(long itemId) {
+        itemStorage.deleteById(itemId);
     }
 
     private void validateItemDto(EditItemRequestDto editItemRequestDto) {
