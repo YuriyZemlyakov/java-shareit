@@ -3,22 +3,25 @@ package ru.practicum.shareit.item.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "items")
+@Table(name = "comments")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String name;
-    private String description;
-    private Boolean available;
+    private String text;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User owner;
-    @Transient
-    private long request = 0;
+    private User author;
+    private LocalDateTime created;
 }

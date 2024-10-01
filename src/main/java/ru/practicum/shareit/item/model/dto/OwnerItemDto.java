@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.time.LocalDateTime;
+import java.util.Collection;
+
 @Data
-public class ItemDto {
+public class OwnerItemDto {
     private long id;
     @NotBlank
     private String name;
@@ -19,4 +19,7 @@ public class ItemDto {
     private Boolean available;
     private User owner;
     private long request = 0;
+    private LocalDateTime previousBookingDate;
+    private LocalDateTime nextBookingDate;
+    private Collection<CommentResponseDto> comment;
 }
