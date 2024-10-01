@@ -10,6 +10,9 @@ import ru.practicum.shareit.booking.model.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.dtoMapper.BookingDtoMapper;
 import ru.practicum.shareit.booking.model.enums.State;
 import ru.practicum.shareit.booking.model.enums.Status;
+import ru.practicum.shareit.exception.AccessException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemStorage;
 import ru.practicum.shareit.user.dao.UserStorage;
 
@@ -24,24 +27,30 @@ public class BookingServiceImpl implements BookingService {
     final private UserStorage userStorage;
     final private ItemStorage itemStorage;
     final private BookingDtoMapper mapper;
+
     @Override
     public Booking addBooking(long userId, BookingRequestDto newBooking) {
-        log.info("Маппим дто в энтити");
+        checkUser(userId);
+        long itemId = newBooking.getItemId();
+        checkItem(itemId);
+        boolean isAvailable = itemStorage.getReferenceById(newBooking.getItemId()).getAvailable();
+        if (!isAvailable) {
+            throw new ValidationException(String.format("Вещь %s недоступна для бронирования", newBooking.getItemId()));
+        }
         Booking requestEntityBooking = mapper.requestDtoToEntity(newBooking);
-        log.info("Проставляем статус");
         requestEntityBooking.setStatus(Status.WAITING);
-        log.info("проставляем юзера");
         requestEntityBooking.setBooker(userStorage.getReferenceById(userId));
-        log.info("проставляем Item");
         requestEntityBooking.setItem(itemStorage.getReferenceById(newBooking.getItemId()));
-        log.info("сохраняем данные в БД");
         Booking responseEntity = bookingStorage.save(requestEntityBooking);
-        log.info("преобразуем сущность в энтити и возвращаем в контрооллер");
         return responseEntity;
     }
 
     @Override
-    public BookingResponseDto confirmBooking(long bookingId, boolean isApproved) {
+    public BookingResponseDto confirmBooking(long userId, long bookingId, boolean isApproved) {
+
+        if (userId != bookingStorage.getReferenceById(bookingId).getItem().getOwner().getId()) {
+            throw new AccessException("Акцептовать бронирование может только владелец вещи");
+        }
         Booking editedBooking = bookingStorage.getReferenceById(bookingId);
         Status status = null;
         if (isApproved) {
@@ -62,6 +71,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Collection<BookingResponseDto> getAlLBookingsByCurrentUser(long userId, State state) {
+        checkUser(userId);
         switch (state) {
             case State.ALL:
                 return bookingStorage.getAllBookingsByCurrentUser(userId).stream()
@@ -97,6 +107,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Collection<BookingResponseDto> getBookingsByOwner(long ownerId, State state) {
+        checkUser(ownerId);
         switch (state) {
             case State.ALL:
                 return bookingStorage.getOwnerBookings(ownerId).stream()
@@ -127,6 +138,18 @@ public class BookingServiceImpl implements BookingService {
                         .map(booking -> mapper.entityToResponseDto(booking))
                         .collect(Collectors.toList());
 
+        }
+    }
+
+    private void checkUser(long userId) {
+        if (userStorage.getUserById(userId) == null) {
+            throw new NotFoundException(String.format("Пользователя с id %s не найдено", userId));
+        }
+    }
+
+    private void checkItem(long itemId) {
+        if (itemStorage.getItemById(itemId) == null) {
+            throw new NotFoundException(String.format("Вещи c id %s не найдено", itemId));
         }
     }
 }

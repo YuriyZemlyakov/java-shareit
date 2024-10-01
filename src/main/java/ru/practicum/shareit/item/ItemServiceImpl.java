@@ -1,26 +1,27 @@
 package ru.practicum.shareit.item;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.CommentStorage;
 import ru.practicum.shareit.item.dao.ItemStorage;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.dto.*;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.dtoMapper.CommentMapper;
 import ru.practicum.shareit.item.model.dtoMapper.ItemDtoMapper;
 import ru.practicum.shareit.user.dao.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.max;
 import static java.util.Collections.reverseOrder;
 
 @Service
@@ -33,8 +34,13 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
 
     @Override
-    public ItemDto getItem(long itemId) {
-        return ItemDtoMapper.itemToDto(itemStorage.getReferenceById(itemId));
+    public OwnerItemDto getItem(long itemId) {
+        Item item = itemStorage.getItemById(itemId);
+        long ownerId = item.getOwner().getId();
+        Collection<CommentResponseDto> comments = getComments(ownerId, itemId);
+        OwnerItemDto ownerItemDto = ItemDtoMapper.itemToOwnerDto(itemStorage.getItemById(itemId));
+        ownerItemDto.setComments(comments);
+        return ownerItemDto;
     }
 
 
@@ -45,18 +51,15 @@ public class ItemServiceImpl implements ItemService {
                 .peek(ownerItemDto -> {
                     long itemId = ownerItemDto.getId();
                     Collection<Booking> bookings = bookingStorage.getBookingsByItem(itemId);
-                    ownerItemDto.setPreviousBookingDate(getLastBookingDate(bookings).orElse(null));
-                    ownerItemDto.setNextBookingDate(getNextBookingDate(bookings).orElse(null));
-                    Collection<CommentResponseDto> comments = commentStorage
-                            .findAllByAuthorAndItem(ownerId, itemId)
-                            .stream()
-                            .map(comment -> commentMapper.entityToResponsetDto(comment))
-                            .collect(Collectors.toList());
-                    ownerItemDto.setComment(comments);
+                    ownerItemDto.setLastBooking(getLastBookingDate(bookings).orElse(null));
+                    ownerItemDto.setNextBooking(getNextBookingDate(bookings).orElse(null));
+                    Collection<CommentResponseDto> comments = getComments(ownerId, itemId);
+                    ownerItemDto.setComments(comments);
                 })
                 .collect(Collectors.toList());
 
     }
+
     private Optional<LocalDateTime> getLastBookingDate(Collection<Booking> bookingList) {
         return bookingList.stream()
                 .filter(booking -> (booking.getEnd().isBefore(LocalDateTime.now())))
@@ -64,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
                 .sorted(reverseOrder())
                 .findFirst();
     }
+
     private Optional<LocalDateTime> getNextBookingDate(Collection<Booking> bookingList) {
         return bookingList.stream()
                 .filter(booking -> (booking.getStart().isAfter(LocalDateTime.now())))
@@ -74,12 +78,15 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
+    @Transactional
     public ItemDto addItem(long userId, ItemDto newItem) {
-        if (userStorage.getReferenceById(userId) == null) {
-            throw new NotFoundException(String.format("Пользователь с id {} не найден", userId));
+        Objects.requireNonNull(newItem, "Cannot add item, value is null");
+        if (userStorage.getUserById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
         }
+
         Item item = ItemDtoMapper.dtoToItem(newItem);
-        item.setOwner(userStorage.getReferenceById(userId));
+        item.setOwner(userStorage.getUserById(userId));
         return ItemDtoMapper.itemToDto(itemStorage.save(item));
     }
 
@@ -108,9 +115,10 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> ItemDtoMapper.itemToDto(item))
                 .collect(Collectors.toList());
     }
+
     @Override
     public CommentResponseDto addComment(long userId, long itemId, CommentRequestDto requestDto) {
-        checkCommentAuthor(userId, itemId);
+        checkAccessToComment(userId, itemId);
         Comment comment = commentMapper.requestDtoToEntity(requestDto);
         comment.setItem(itemStorage.getReferenceById(itemId));
         comment.setAuthor(userStorage.getReferenceById(userId));
@@ -133,10 +141,24 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Поле available должно быть заполнено");
         }
     }
-    private void checkCommentAuthor(long userId, long itemId) {
-        if (!itemStorage.getItemsByOwner(userId).contains(itemStorage.getReferenceById(itemId))) {
+
+    private void checkAccessToComment(long userId, long itemId) {
+        boolean canComment = bookingStorage.getBookingsByItem(itemId).stream()
+                .filter(booking -> (booking.getBooker().getId() == userId && booking.getEnd()
+                        .isBefore(LocalDateTime.now())))
+                .findFirst().isPresent();
+        if (!canComment) {
+            bookingStorage.getBookingsByItem(itemId);
             throw new ValidationException(String.format("Пользователь %s не брал в аренду вещь %s, поэтому не имеет" +
                     "право писать комментарий", userId, itemId));
         }
     }
+
+    private Collection<CommentResponseDto> getComments(long userId, long itemId) {
+        return commentStorage.findAllByAuthorAndItem(userId, itemId)
+                .stream()
+                .map(comment -> commentMapper.entityToResponsetDto(comment))
+                .collect(Collectors.toList());
+    }
 }
+

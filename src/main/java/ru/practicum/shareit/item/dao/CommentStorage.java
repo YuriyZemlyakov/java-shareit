@@ -6,9 +6,7 @@ import ru.practicum.shareit.item.model.Comment;
 
 import java.util.Collection;
 
-public interface CommentStorage extends JpaRepository<Comment,Long> {
-    @Query(value = "select с.* from comments c join users u on c.user_id = u.id join items i on c.item_id = i.id " +
-            "where u.id = :authorId and i.id = :itemId",
-            nativeQuery = true)
+public interface CommentStorage extends JpaRepository<Comment, Long> {
+    @Query("Select c from Comment c join c.item i join i.owner o where o.id = ?1 and i.id = ?2")
     public Collection<Comment> findAllByAuthorAndItem(long authorId, long itemId);
 }

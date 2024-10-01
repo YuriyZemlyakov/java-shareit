@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.practicum.shareit.item.model.Item;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -23,5 +23,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User author;
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime created;
 }

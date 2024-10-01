@@ -20,6 +20,7 @@ public class ItemController {
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto item) {
         return itemService.addItem(userId, item);
     }
+
     @PostMapping("/{itemId}/comment")
     public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
                                          @PathVariable long itemId,
@@ -28,7 +29,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable long itemId) {
+    public OwnerItemDto getItemById(@PathVariable long itemId) {
         return itemService.getItem(itemId);
     }
 

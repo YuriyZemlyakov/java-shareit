@@ -5,7 +5,7 @@ import ru.practicum.shareit.item.model.dto.*;
 import java.util.Collection;
 
 public interface ItemService {
-    ItemDto getItem(long itemId);
+    OwnerItemDto getItem(long itemId);
 
     Collection<OwnerItemDto> getItemsByOwner(long ownerId);
 
@@ -16,5 +16,6 @@ public interface ItemService {
     Collection<ItemDto> searchItem(String text);
 
     void deleteItem(long itemId);
+
     CommentResponseDto addComment(long userId, long itemId, CommentRequestDto requestDto);
 }

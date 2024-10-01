@@ -19,7 +19,7 @@ public class OwnerItemDto {
     private Boolean available;
     private User owner;
     private long request = 0;
-    private LocalDateTime previousBookingDate;
-    private LocalDateTime nextBookingDate;
-    private Collection<CommentResponseDto> comment;
+    private LocalDateTime lastBooking;
+    private LocalDateTime nextBooking;
+    private Collection<CommentResponseDto> comments;
 }
