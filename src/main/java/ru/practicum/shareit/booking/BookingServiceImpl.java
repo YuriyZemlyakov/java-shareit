@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    final private BookingStorage bookingStorage;
-    final private UserStorage userStorage;
-    final private ItemStorage itemStorage;
-    final private BookingDtoMapper mapper;
+    private final BookingStorage bookingStorage;
+    private final UserStorage userStorage;
+    private final ItemStorage itemStorage;
+    private final BookingDtoMapper mapper;
 
     @Override
     public Booking addBooking(long userId, BookingRequestDto newBooking) {
