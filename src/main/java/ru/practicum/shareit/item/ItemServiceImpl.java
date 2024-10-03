@@ -32,13 +32,14 @@ public class ItemServiceImpl implements ItemService {
     private final BookingStorage bookingStorage;
     private final CommentStorage commentStorage;
     private final CommentMapper commentMapper;
+    private final ItemDtoMapper itemDtoMapper;
 
     @Override
     public OwnerItemDto getItem(long itemId) {
         Item item = itemStorage.getItemById(itemId);
         long ownerId = item.getOwner().getId();
         Collection<CommentResponseDto> comments = getComments(ownerId, itemId);
-        OwnerItemDto ownerItemDto = ItemDtoMapper.itemToOwnerDto(itemStorage.getItemById(itemId));
+        OwnerItemDto ownerItemDto = itemDtoMapper.itemToOwnerDto(itemStorage.getItemById(itemId));
         ownerItemDto.setComments(comments);
         return ownerItemDto;
     }
@@ -47,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<OwnerItemDto> getItemsByOwner(long ownerId) {
         return itemStorage.getItemsByOwner(ownerId).stream()
-                .map(item -> ItemDtoMapper.itemToOwnerDto(item))
+                .map(item -> itemDtoMapper.itemToOwnerDto(item))
                 .peek(ownerItemDto -> {
                     long itemId = ownerItemDto.getId();
                     Collection<Booking> bookings = bookingStorage.getBookingsByItem(itemId);
@@ -85,9 +86,9 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        Item item = ItemDtoMapper.dtoToItem(newItem);
+        Item item = itemDtoMapper.dtoToItem(newItem);
         item.setOwner(userStorage.getUserById(userId));
-        return ItemDtoMapper.itemToDto(itemStorage.save(item));
+        return itemDtoMapper.itemToDto(itemStorage.save(item));
     }
 
     @Override
@@ -106,13 +107,13 @@ public class ItemServiceImpl implements ItemService {
         if (editedFields.getAvailable() != null) {
             editedItem.setAvailable(editedFields.getAvailable());
         }
-        return ItemDtoMapper.itemToDto(itemStorage.save(editedItem));
+        return itemDtoMapper.itemToDto(itemStorage.save(editedItem));
     }
 
     @Override
     public Collection<ItemDto> searchItem(String text) {
         return itemStorage.searchItem(text.toLowerCase()).stream()
-                .map(item -> ItemDtoMapper.itemToDto(item))
+                .map(item -> itemDtoMapper.itemToDto(item))
                 .collect(Collectors.toList());
     }
 

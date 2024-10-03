@@ -15,21 +15,22 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final UserDtoMapper mapper;
 
     @Override
     public Collection<UserDto> getAllUsers() {
         return userStorage.findAll().stream()
-                .map(user -> UserDtoMapper.userToDto(user))
+                .map(user -> mapper.userToDto(user))
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto getUser(long userId) {
-        return UserDtoMapper.userToDto(userStorage.getReferenceById(userId));
+        return mapper.userToDto(userStorage.getReferenceById(userId));
     }
 
     public UserDto addUser(UserDto user) {
-        return UserDtoMapper.userToDto(userStorage.save(UserDtoMapper.dtoToUser(user)));
+        return mapper.userToDto(userStorage.save(mapper.dtoToUser(user)));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
         if (editedUserFields.getName() != null) {
             editedUser.setName(editedUserFields.getName());
         }
-        return UserDtoMapper.userToDto(userStorage.save(editedUser));
+        return mapper.userToDto(userStorage.save(editedUser));
     }
 
     @Override

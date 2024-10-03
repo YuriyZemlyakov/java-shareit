@@ -3,8 +3,8 @@ package ru.practicum.shareit.booking.model.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import ru.practicum.shareit.booking.model.enums.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.model.dto.ItemResponseDto;
+import ru.practicum.shareit.user.model.dto.UserDto;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ public class BookingResponseDto {
     private LocalDateTime start;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
-    private Item item;
-    private User booker;
+    private ItemResponseDto item;
+    private UserDto booker;
     private Status status;
 }

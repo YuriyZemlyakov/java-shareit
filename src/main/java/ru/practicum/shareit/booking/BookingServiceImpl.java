@@ -15,6 +15,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemStorage;
 import ru.practicum.shareit.user.dao.UserStorage;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking addBooking(long userId, BookingRequestDto newBooking) {
-        checkUser(userId);
+        User booker = checkUser(userId);
         long itemId = newBooking.getItemId();
         checkItem(itemId);
         boolean isAvailable = itemStorage.getReferenceById(newBooking.getItemId()).getAvailable();
@@ -39,7 +40,7 @@ public class BookingServiceImpl implements BookingService {
         }
         Booking requestEntityBooking = mapper.requestDtoToEntity(newBooking);
         requestEntityBooking.setStatus(Status.WAITING);
-        requestEntityBooking.setBooker(userStorage.getReferenceById(userId));
+        requestEntityBooking.setBooker(booker);
         requestEntityBooking.setItem(itemStorage.getReferenceById(newBooking.getItemId()));
         Booking responseEntity = bookingStorage.save(requestEntityBooking);
         return responseEntity;
@@ -48,20 +49,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDto confirmBooking(long userId, long bookingId, boolean isApproved) {
 
-        if (userId != bookingStorage.getReferenceById(bookingId).getItem().getOwner().getId()) {
+        if (userId != bookingStorage.getOwnerIdByBookingId(bookingId)) {
             throw new AccessException("Акцептовать бронирование может только владелец вещи");
         }
         Booking editedBooking = bookingStorage.getReferenceById(bookingId);
         Status status = null;
         if (isApproved) {
             status = Status.APPROVED;
-            editedBooking.setStatus(status);
-            return mapper.entityToResponseDto(bookingStorage.save(editedBooking));
         } else {
             status = Status.REJECTED;
-            editedBooking.setStatus(status);
-            return mapper.entityToResponseDto(bookingStorage.save(editedBooking));
         }
+        editedBooking.setStatus(status);
+        return mapper.entityToResponseDto(bookingStorage.save(editedBooking));
     }
 
     @Override
@@ -141,10 +140,12 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void checkUser(long userId) {
-        if (userStorage.getUserById(userId) == null) {
+    private User checkUser(long userId) {
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
             throw new NotFoundException(String.format("Пользователя с id %s не найдено", userId));
         }
+            return user;
     }
 
     private void checkItem(long itemId) {
