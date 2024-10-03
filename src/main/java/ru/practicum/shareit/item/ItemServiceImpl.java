@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dao.BookingStorage;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.CommentStorage;
@@ -15,14 +14,12 @@ import ru.practicum.shareit.item.model.dto.*;
 import ru.practicum.shareit.item.model.dtoMapper.CommentMapper;
 import ru.practicum.shareit.item.model.dtoMapper.ItemDtoMapper;
 import ru.practicum.shareit.user.dao.UserStorage;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.reverseOrder;
 
 @Service
 @AllArgsConstructor
@@ -36,10 +33,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public OwnerItemDto getItem(long itemId) {
-        Item item = itemStorage.getItemById(itemId);
+        Item item = itemStorage.findById(itemId).orElseThrow(() -> {
+            throw new NotFoundException("Вещь не найдена");
+        });
         long ownerId = item.getOwner().getId();
         Collection<CommentResponseDto> comments = getComments(ownerId, itemId);
-        OwnerItemDto ownerItemDto = itemDtoMapper.itemToOwnerDto(itemStorage.getItemById(itemId));
+        OwnerItemDto ownerItemDto = itemDtoMapper.itemToOwnerDto(item);
         ownerItemDto.setComments(comments);
         return ownerItemDto;
     }
@@ -51,43 +50,24 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> itemDtoMapper.itemToOwnerDto(item))
                 .peek(ownerItemDto -> {
                     long itemId = ownerItemDto.getId();
-                    Collection<Booking> bookings = bookingStorage.getBookingsByItem(itemId);
-                    ownerItemDto.setLastBooking(getLastBookingDate(bookings).orElse(null));
-                    ownerItemDto.setNextBooking(getNextBookingDate(bookings).orElse(null));
+                    ownerItemDto.setLastBooking(bookingStorage.findLastBookingDate(itemId));
+                    ownerItemDto.setNextBooking(bookingStorage.findNextBookingDate(itemId));
                     Collection<CommentResponseDto> comments = getComments(ownerId, itemId);
                     ownerItemDto.setComments(comments);
                 })
                 .collect(Collectors.toList());
-
     }
-
-    private Optional<LocalDateTime> getLastBookingDate(Collection<Booking> bookingList) {
-        return bookingList.stream()
-                .filter(booking -> (booking.getEnd().isBefore(LocalDateTime.now())))
-                .map(booking -> booking.getEnd())
-                .sorted(reverseOrder())
-                .findFirst();
-    }
-
-    private Optional<LocalDateTime> getNextBookingDate(Collection<Booking> bookingList) {
-        return bookingList.stream()
-                .filter(booking -> (booking.getStart().isAfter(LocalDateTime.now())))
-                .map(booking -> booking.getStart())
-                .sorted()
-                .findFirst();
-    }
-
 
     @Override
     @Transactional
     public ItemDto addItem(long userId, ItemDto newItem) {
         Objects.requireNonNull(newItem, "Cannot add item, value is null");
-        if (userStorage.getUserById(userId) == null) {
+        User owner = userStorage.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Пользователь не найден");
-        }
+        });
 
         Item item = itemDtoMapper.dtoToItem(newItem);
-        item.setOwner(userStorage.getUserById(userId));
+        item.setOwner(owner);
         return itemDtoMapper.itemToDto(itemStorage.save(item));
     }
 

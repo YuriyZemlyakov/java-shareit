@@ -14,6 +14,7 @@ import ru.practicum.shareit.exception.AccessException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemStorage;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
@@ -33,8 +34,8 @@ public class BookingServiceImpl implements BookingService {
     public Booking addBooking(long userId, BookingRequestDto newBooking) {
         User booker = checkUser(userId);
         long itemId = newBooking.getItemId();
-        checkItem(itemId);
-        boolean isAvailable = itemStorage.getReferenceById(newBooking.getItemId()).getAvailable();
+        Item item = checkItem(itemId);
+        boolean isAvailable = item.getAvailable();
         if (!isAvailable) {
             throw new ValidationException(String.format("Вещь %s недоступна для бронирования", newBooking.getItemId()));
         }
@@ -141,16 +142,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private User checkUser(long userId) {
-        User user = userStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException(String.format("Пользователя с id %s не найдено", userId));
-        }
-            return user;
+        User user = userStorage.findById(userId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException(String.format("Пользователя с id %s не найдено", userId));
+                });
+        return user;
     }
 
-    private void checkItem(long itemId) {
-        if (itemStorage.getItemById(itemId) == null) {
-            throw new NotFoundException(String.format("Вещи c id %s не найдено", itemId));
-        }
+    private Item checkItem(long itemId) {
+        Item item = itemStorage.findById(itemId).orElseThrow(() -> {
+            throw new NotFoundException("вещь не найдена");
+        });
+        return item;
     }
 }
