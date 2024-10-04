@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<OwnerItemDto> getItemsByOwner(long ownerId) {
-        return itemStorage.getItemsByOwner(ownerId).stream()
+        return itemStorage.findByOwner_IdEquals(ownerId).stream()
                 .map(item -> itemDtoMapper.itemToOwnerDto(item))
                 .peek(ownerItemDto -> {
                     long itemId = ownerItemDto.getId();

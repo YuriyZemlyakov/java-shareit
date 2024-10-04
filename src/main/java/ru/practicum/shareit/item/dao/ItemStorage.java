@@ -8,8 +8,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface ItemStorage extends JpaRepository<Item, Long> {
-    @Query("select i from Item i join i.owner u where u.id  = :ownerId")
-    Collection<Item> getItemsByOwner(long ownerId);
+    Collection<Item> findByOwner_IdEquals(long ownerId);
 
     @Query("select i from Item i where i.available = true and :text != '' and (lower(i.name) like %:text% or lower(i.description) like %:text%)")
     Collection<Item> searchItem(String text);

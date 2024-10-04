@@ -42,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
         Booking requestEntityBooking = mapper.requestDtoToEntity(newBooking);
         requestEntityBooking.setStatus(Status.WAITING);
         requestEntityBooking.setBooker(booker);
-        requestEntityBooking.setItem(itemStorage.getReferenceById(newBooking.getItemId()));
+        requestEntityBooking.setItem(item);
         Booking responseEntity = bookingStorage.save(requestEntityBooking);
         return responseEntity;
     }
