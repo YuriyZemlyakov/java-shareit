@@ -1,28 +1,18 @@
 package ru.practicum.shareit.item.model.dtoMapper;
 
+import org.mapstruct.Mapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.dto.ItemDto;
+import ru.practicum.shareit.item.model.dto.OwnerItemDto;
+import ru.practicum.shareit.user.model.User;
 
-public class ItemDtoMapper {
-    public static Item dtoToItem(ItemDto dto) {
-        Item item = new Item();
-        item.setId(dto.getId());
-        item.setName(dto.getName());
-        item.setDescription(dto.getDescription());
-        item.setOwner(dto.getOwner());
-        item.setRequest(dto.getRequest());
-        item.setAvailable(dto.getAvailable());
-        return item;
-    }
 
-    public static ItemDto itemToDto(Item item) {
-        ItemDto dto = new ItemDto();
-        dto.setId(item.getId());
-        dto.setName(item.getName());
-        dto.setDescription(item.getDescription());
-        dto.setOwner(item.getOwner());
-        dto.setRequest(item.getRequest());
-        dto.setAvailable(item.getAvailable());
-        return dto;
-    }
+@Mapper(componentModel = "spring", uses = {User.class})
+public interface ItemDtoMapper {
+
+    Item dtoToItem(ItemDto dto);
+
+    ItemDto itemToDto(Item item);
+
+    OwnerItemDto itemToOwnerDto(Item item);
 }

@@ -1,20 +1,18 @@
 package ru.practicum.shareit.item.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.dto.EditItemRequestDto;
 
 import java.util.Collection;
+import java.util.Optional;
 
-public interface ItemStorage {
-    Item addItem(Item item);
+public interface ItemStorage extends JpaRepository<Item, Long> {
+    Collection<Item> findByOwner_IdEquals(long ownerId);
 
-    Item updateItem(long itemId, EditItemRequestDto editedFields);
-
-    Item getItem(long itemId);
-
-    void deleteItem(long itemId);
-
+    @Query("select i from Item i where i.available = true and :text != '' and (lower(i.name) like %:text% or lower(i.description) like %:text%)")
     Collection<Item> searchItem(String text);
 
-    Collection<Item> getItemsByOwner(long ownerId);
+    //    @NotFound(action = NotFoundAction.IGNORE)
+    Optional<Item> findById(long itemId);
 }

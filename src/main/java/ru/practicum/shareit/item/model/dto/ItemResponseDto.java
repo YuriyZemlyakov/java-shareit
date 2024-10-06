@@ -3,13 +3,10 @@ package ru.practicum.shareit.item.model.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import ru.practicum.shareit.user.model.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
-public class ItemDto {
+public class ItemResponseDto {
     private long id;
     @NotBlank
     private String name;
@@ -17,6 +14,7 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
-    private UserDto owner;
+    private User owner;
     private long request = 0;
+    private CommentResponseDto comment;
 }
