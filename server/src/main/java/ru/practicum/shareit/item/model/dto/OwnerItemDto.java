@@ -5,8 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+
 @Data
-public class ItemResponseDto {
+public class OwnerItemDto {
     private long id;
     @NotBlank
     private String name;
@@ -15,6 +18,8 @@ public class ItemResponseDto {
     @NotNull
     private Boolean available;
     private User owner;
-    private long request = 0;
-    private CommentResponseDto comment;
+    private Long requestId;
+    private LocalDateTime lastBooking;
+    private LocalDateTime nextBooking;
+    private Collection<CommentResponseDto> comments;
 }

@@ -15,4 +15,8 @@ public interface ItemStorage extends JpaRepository<Item, Long> {
 
     //    @NotFound(action = NotFoundAction.IGNORE)
     Optional<Item> findById(long itemId);
+
+    @Query(value = "select i.* from items i join requests r on i.request_id = r.id where r.id = :request",
+            nativeQuery = true)
+    Collection<Item> findByRequest(long request);
 }
