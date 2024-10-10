@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping(path = "/requests")
 @AllArgsConstructor
-public class ItemRequestController {
+public class RequestController {
     private final RequestService requestService;
 
     @PostMapping

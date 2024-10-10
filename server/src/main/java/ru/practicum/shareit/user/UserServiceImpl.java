@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dao.UserStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.dto.EditedUserFields;
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(long userId) {
-        return mapper.userToDto(userStorage.getReferenceById(userId));
+        return mapper.userToDto(userStorage.findById(userId).orElseThrow(() ->new NotFoundException("Id не найден")));
     }
 
     public UserDto addUser(UserDto user) {
