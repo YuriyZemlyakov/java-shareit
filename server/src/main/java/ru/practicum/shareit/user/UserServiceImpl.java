@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(long userId) {
-        return mapper.userToDto(userStorage.findById(userId).orElseThrow(() ->new NotFoundException("Id не найден")));
+        return mapper.userToDto(userStorage.findById(userId).orElseThrow(() -> new NotFoundException("Id не найден")));
     }
 
     public UserDto addUser(UserDto user) {

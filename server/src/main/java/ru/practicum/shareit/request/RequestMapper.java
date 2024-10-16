@@ -7,7 +7,8 @@ import ru.practicum.shareit.request.dto.RequestResponseDto;
 
 @Mapper
 public interface RequestMapper {
-    @Mapping(source = "requester.id",target = "requesterId")
+    @Mapping(source = "requester.id", target = "requesterId")
     RequestResponseDto entityToDto(Request request);
+
     Request dtoToEntity(RequestRequestDto dto);
 }

@@ -20,6 +20,7 @@ public interface ItemDtoMapper {
 
     @Mapping(source = "request", target = "requestId")
     OwnerItemDto itemToOwnerDto(Item item);
+
     @Mapping(source = "owner.id", target = "ownerId")
     ItemReqResDto itemToItemReqResDto(Item item);
 }

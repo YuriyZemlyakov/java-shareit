@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.user.model.User;
 
 @Data

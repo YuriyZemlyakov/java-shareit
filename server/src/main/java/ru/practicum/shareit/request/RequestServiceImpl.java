@@ -51,6 +51,7 @@ public class RequestServiceImpl implements RequestService {
         dto.setItems(getRequestItems(dto));
         return dto;
     }
+
     private Collection<ItemReqResDto> getRequestItems(RequestResponseDto dto) {
         return itemStorage.findByRequest(dto.getId()).stream()
                 .map(item -> itemMapper.itemToItemReqResDto(item))

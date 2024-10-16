@@ -40,7 +40,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> searchItem(String text) {
-        return get("/owner?text=" + text);
+        return get("/search?text=" + text);
     }
 
     public ResponseEntity<Object> editItem(long itemId, long userId, EditItemRequestDto dto) {

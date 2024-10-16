@@ -15,12 +15,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.TestData;
-import ru.practicum.shareit.item.model.dto.EditItemRequestDto;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -132,9 +130,9 @@ class ItemControllerTest {
 
         // When
         var response = mockMvc.perform(
-                get("/items")
-                .header("X-Sharer-User-Id", String.valueOf(ownerId))
-                .accept(MediaType.APPLICATION_JSON))
+                        get("/items")
+                                .header("X-Sharer-User-Id", String.valueOf(ownerId))
+                                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         // Then
@@ -171,11 +169,11 @@ class ItemControllerTest {
 
         // When
         var response = mockMvc.perform(
-                patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(editedItemRequestDto)))
-                        .andExpect(status().isOk());
+                        patch("/items/{itemId}", itemId)
+                                .header("X-Sharer-User-Id", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(editedItemRequestDto)))
+                .andExpect(status().isOk());
 
         // Then
         verify(itemService).editItem(itemId, userId, editedItemRequestDto);

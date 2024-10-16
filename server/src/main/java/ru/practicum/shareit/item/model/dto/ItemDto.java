@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item.model.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.shareit.user.model.dto.UserDto;
 

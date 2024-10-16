@@ -12,6 +12,7 @@ import ru.practicum.shareit.client.BaseClient;
 @Component
 public class RequestClient extends BaseClient {
     private final static String API_PREFIX = "/requests";
+
     public RequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
@@ -19,9 +20,11 @@ public class RequestClient extends BaseClient {
                 .build()
         );
     }
+
     public ResponseEntity<Object> addRequest(long userId, RequestRequestDto dto) {
         return post("", userId, dto);
     }
+
     public ResponseEntity<Object> getAllRequests() {
         return get("/all");
     }
@@ -31,7 +34,7 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getRequestById(long requestId) {
-        return get("/"+ requestId);
+        return get("/" + requestId);
     }
 
 }

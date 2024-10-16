@@ -36,6 +36,7 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingResponseDto getBookingInfo(@PathVariable long bookingId) {
+        log.info("Received GET request: {}", bookingId);
         return service.getBookingInfo(bookingId);
     }
 
