@@ -25,7 +25,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponseDto addRequest(long requesterId, RequestRequestDto requestDto) {
         User requester = userStorage.getReferenceById(requesterId);
-        Request request = requestMapper.dtoToEntity(requestDto);
+        ItemRequest request = requestMapper.dtoToEntity(requestDto);
         request.setRequester(requester);
         return requestMapper.entityToDto(requestStorage.save(request));
     }

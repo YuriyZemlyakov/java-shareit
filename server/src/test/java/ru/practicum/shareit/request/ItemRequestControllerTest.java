@@ -24,7 +24,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 
 @ExtendWith(MockitoExtension.class)
-public class RequestControllerTest {
+public class ItemRequestControllerTest {
     private MockMvc mockMvc;
     @Mock
     private RequestService requestService;

@@ -10,10 +10,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 
 @Component
-public class RequestClient extends BaseClient {
+public class ItemRequestClient extends BaseClient {
     private final static String API_PREFIX = "/requests";
 
-    public RequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
