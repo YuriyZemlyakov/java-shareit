@@ -1,12 +1,12 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dao.ItemStorage;
 import ru.practicum.shareit.item.model.dto.ItemReqResDto;
 import ru.practicum.shareit.item.model.dtoMapper.ItemDtoMapper;
-import ru.practicum.shareit.request.dto.RequestRequestDto;
-import ru.practicum.shareit.request.dto.RequestResponseDto;
+import ru.practicum.shareit.itemRequest.dto.RequestRequestDto;
+import ru.practicum.shareit.itemRequest.dto.RequestResponseDto;
 import ru.practicum.shareit.user.dao.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class RequestServiceImpl implements RequestService {
-    private final RequestStorage requestStorage;
-    private final RequestMapper requestMapper;
+public class ItemRequestServiceImpl implements ItemRequestService {
+    private final ItemRequestStorage itemRequestStorage;
+    private final ItemRequestMapper itemRequestMapper;
     private final ItemDtoMapper itemMapper;
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
@@ -25,29 +25,29 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestResponseDto addRequest(long requesterId, RequestRequestDto requestDto) {
         User requester = userStorage.getReferenceById(requesterId);
-        Request request = requestMapper.dtoToEntity(requestDto);
-        request.setRequester(requester);
-        return requestMapper.entityToDto(requestStorage.save(request));
+        ItemRequest itemRequest = itemRequestMapper.dtoToEntity(requestDto);
+        itemRequest.setRequester(requester);
+        return itemRequestMapper.entityToDto(itemRequestStorage.save(itemRequest));
     }
 
     @Override
     public Collection<RequestResponseDto> getRequesterRequests(long requesterId) {
-        return requestStorage.findByRequester_idEquals(requesterId).stream()
-                .map(request -> requestMapper.entityToDto(request))
+        return itemRequestStorage.findByRequester_idEquals(requesterId).stream()
+                .map(itemRequest -> itemRequestMapper.entityToDto(itemRequest))
                 .peek(dto -> dto.setItems(getRequestItems(dto)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public Collection<RequestResponseDto> getAllRequests() {
-        return requestStorage.findAll().stream()
-                .map(request -> requestMapper.entityToDto(request))
+        return itemRequestStorage.findAll().stream()
+                .map(itemRequest -> itemRequestMapper.entityToDto(itemRequest))
                 .collect(Collectors.toList());
     }
 
     @Override
     public RequestResponseDto getRequestById(long requestId) {
-        RequestResponseDto dto = requestMapper.entityToDto(requestStorage.getReferenceById(requestId));
+        RequestResponseDto dto = itemRequestMapper.entityToDto(itemRequestStorage.getReferenceById(requestId));
         dto.setItems(getRequestItems(dto));
         return dto;
     }

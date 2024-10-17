@@ -1,6 +1,5 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +9,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 
 @Component
-public class RequestClient extends BaseClient {
+public class ItemRequestClient extends BaseClient {
     private final static String API_PREFIX = "/requests";
 
-    public RequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
@@ -21,7 +20,7 @@ public class RequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addRequest(long userId, RequestRequestDto dto) {
+    public ResponseEntity<Object> addRequest(long userId, ItemRequestRequestDto dto) {
         return post("", userId, dto);
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.itemRequest;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RequestRequestDto {
+public class ItemRequestRequestDto {
     private String description;
 }

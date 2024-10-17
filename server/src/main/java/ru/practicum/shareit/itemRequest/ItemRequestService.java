@@ -1,11 +1,11 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
-import ru.practicum.shareit.request.dto.RequestRequestDto;
-import ru.practicum.shareit.request.dto.RequestResponseDto;
+import ru.practicum.shareit.itemRequest.dto.RequestRequestDto;
+import ru.practicum.shareit.itemRequest.dto.RequestResponseDto;
 
 import java.util.Collection;
 
-public interface RequestService {
+public interface ItemRequestService {
     RequestResponseDto addRequest(long requesterId, RequestRequestDto requestDto);
 
     Collection<RequestResponseDto> getRequesterRequests(long requesterId);

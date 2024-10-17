@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.TestData;
-import ru.practicum.shareit.request.dto.RequestRequestDto;
-import ru.practicum.shareit.request.dto.RequestResponseDto;
+import ru.practicum.shareit.itemRequest.dto.RequestRequestDto;
+import ru.practicum.shareit.itemRequest.dto.RequestResponseDto;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -24,18 +24,18 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 
 @ExtendWith(MockitoExtension.class)
-public class RequestControllerTest {
+public class ItemRequestControllerTest {
     private MockMvc mockMvc;
     @Mock
-    private RequestService requestService;
+    private ItemRequestService itemRequestService;
     @InjectMocks
-    private RequestController requestController;
+    private ItemRequestController itemRequestController;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(requestController)
+                .standaloneSetup(itemRequestController)
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class RequestControllerTest {
         RequestResponseDto responseDto = TestData.requestResponseDto();
         Long userId = 2L;
 
-        Mockito.when(requestService.addRequest(Mockito.anyLong(), Mockito.any(RequestRequestDto.class))).thenReturn(responseDto);
+        Mockito.when(itemRequestService.addRequest(Mockito.anyLong(), Mockito.any(RequestRequestDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/requests")
                         .header("X-Sharer-User-Id", userId)
@@ -65,7 +65,7 @@ public class RequestControllerTest {
     public void getAllRequestsTest() throws Exception {
         Collection<RequestResponseDto> expectedDtos = List.of(TestData.requestResponseDto());
 
-        Mockito.when(requestService.getAllRequests()).thenReturn(expectedDtos);
+        Mockito.when(itemRequestService.getAllRequests()).thenReturn(expectedDtos);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/requests/all"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -80,7 +80,7 @@ public class RequestControllerTest {
     public void getRequestByIdTest() throws Exception {
         RequestResponseDto expectedDto = TestData.requestResponseDto();
 
-        Mockito.when(requestService.getRequestById(Mockito.anyLong())).thenReturn(expectedDto);
+        Mockito.when(itemRequestService.getRequestById(Mockito.anyLong())).thenReturn(expectedDto);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/requests/{requestId}", 2L))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("1"))
@@ -94,7 +94,7 @@ public class RequestControllerTest {
         Collection<RequestResponseDto> expectedDtos = List.of(TestData.requestResponseDto());
         Long requesterId = 1L;
 
-        Mockito.when(requestService.getRequesterRequests(Mockito.anyLong())).thenReturn(expectedDtos);
+        Mockito.when(itemRequestService.getRequesterRequests(Mockito.anyLong())).thenReturn(expectedDtos);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/requests")
                         .header("X-Sharer-User-Id", requesterId))
